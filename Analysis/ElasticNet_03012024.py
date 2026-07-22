@@ -31,6 +31,7 @@ sys.path.append('../')
 # OHE = One hot encoding
 from Build.Dictionaries import X_hoh_OHE, X_house_OHE, X_all_OHE
 from Build.Dictionaries import X_hoh_WOE, X_house_WOE, X_all_WOE
+from Build.config import DATA_DIR, MODELS_DIR
 
 from sklearn.model_selection import GridSearchCV
 import pandas as pd
@@ -43,7 +44,7 @@ from sklearn.feature_selection import SelectFromModel
 
 
 today = date.today()
-mpath = r'..\..\..\Output\models'
+mpath = MODELS_DIR
 
 
 def lassoridgecv(df, yvar, pcabool, X_subset, ElasticNetBool,
@@ -159,13 +160,13 @@ def lassoridgecv(df, yvar, pcabool, X_subset, ElasticNetBool,
                        'Variable Selection': varsel,
                        'Model': lg_model_grid}
     
-    bestmodelpath = mpath + f'\\LassoRidgeEN_{yvar}_{dataset}_{encoding}_EN{enb}_VarSel{varsel}_PCA{pcabool}.pkl'
+    bestmodelpath = mpath / f'LassoRidgeEN_{yvar}_{dataset}_{encoding}_EN{enb}_VarSel{varsel}_PCA{pcabool}.pkl'
     with open(bestmodelpath, 'wb') as f:
         pickle.dump(performdict, f)
 
 ###############################################################
 # Run the analysis
-alldf = pd.read_csv(r'..\..\..\Data\train_allfeatures__2024-03-07.csv')
+alldf = pd.read_csv(DATA_DIR / 'train_allfeatures__2024-03-07.csv')
 
 
 counter = 0

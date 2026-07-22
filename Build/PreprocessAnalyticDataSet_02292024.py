@@ -16,12 +16,13 @@ import pickle
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 import category_encoders as ce
+from config import DATA_DIR, COMPONENTS_DIR
 
 ##############################################################################
 # Globals
 ##############################################################################
 today = date.today()
-dpath = r'..\..\..\Data'
+dpath = DATA_DIR
 
 all_cont_vars = ['HoH_AgeAtEntry', 'HoH_EmployedHoursWorkedLastWeek',
                  'AverageLHEventsInPast12Months',
@@ -160,8 +161,10 @@ keepvars = ['PersonalID', 'success_730', 'success_365', 'success_180',
 # Load Training data
 ##############################################################################
 
-traindf = pd.read_pickle(dpath + r'\traindf_2024-03-07.pkl')
-testdf = pd.read_pickle(dpath + r'\testdf_2024-03-07.pkl')
+# Override the build date of the train/test files via SOURCE_DATE.
+SOURCE_DATE = '2024-03-07'
+traindf = pd.read_pickle(dpath / f'traindf_{SOURCE_DATE}.pkl')
+testdf = pd.read_pickle(dpath / f'testdf_{SOURCE_DATE}.pkl')
 
 ##############################################################################
 # Create Encoders and Save them
@@ -173,7 +176,7 @@ def encodesave(temp, c):
     enc.fit(temp[c].values.reshape(-1, 1))
     
     # Save
-    epath = dpath + r'\\components\\Encoder'+ f'_{c}.pkl'
+    epath = COMPONENTS_DIR / f'Encoder_{c}.pkl'
     with open(epath, 'wb') as f:
         pickle.dump(enc, f)
         
@@ -187,7 +190,7 @@ def WOEencodesave(temp, c, y):
     woe.fit(temp[c], temp[y])
     
     # Save
-    epath = dpath + r'\\components\\WOEEncoder'+ f'_{y}_{c}.pkl'
+    epath = COMPONENTS_DIR / f'WOEEncoder_{y}_{c}.pkl'
     with open(epath, 'wb') as f:
         pickle.dump(woe, f)
     
@@ -227,7 +230,7 @@ def trainimputer(temp):
     imputertuple = (temp.columns, imputer)
 
     # Save it
-    with open(dpath + r'\\components\\ImputerTuple'+ f'_{today}.pkl', 'wb') as f:
+    with open(COMPONENTS_DIR / f'ImputerTuple_{today}.pkl', 'wb') as f:
         pickle.dump(imputertuple, f)
         
     return imputertuple
@@ -288,7 +291,7 @@ def scalesave(temp, c):
     scalar.fit(temp[c].values.reshape(-1, 1))
     
     # Save
-    spath = dpath + r'\\components\\Scaler'+ f'_{c}.pkl'
+    spath = COMPONENTS_DIR / f'Scaler_{c}.pkl'
     with open(spath, 'wb') as f:
         pickle.dump(scalar, f)
         
@@ -356,7 +359,7 @@ def buildXY(temp, keeplist=[], catlist=[], contlist=[], catencodtype = 'OneHot')
             # Take data for each continous variable and apply the appropriate
             # scaler
             for c in contlist:
-                spath = dpath + r'\\components\\Scaler' + f'_{c}.pkl'
+                spath = COMPONENTS_DIR / f'Scaler_{c}.pkl'
                 scaler = pickle.load(open(spath, 'rb'))
                 look = pd.DataFrame(scaler.transform(temp[[c]].to_numpy()),
                                     columns=[c])
@@ -365,7 +368,7 @@ def buildXY(temp, keeplist=[], catlist=[], contlist=[], catencodtype = 'OneHot')
             # Similar, but no variables to keep as is.
             X = pd.DataFrame()
             for c in contlist:
-                spath = dpath + r'\\components\\Scaler' + f'_{c}.pkl'
+                spath = COMPONENTS_DIR / f'Scaler_{c}.pkl'
                 scaler = pickle.load(open(spath, 'rb'))
                 look = pd.DataFrame(scaler.transform(temp[[c]].to_numpy()).toarray(),
                                     columns=c)
@@ -382,7 +385,7 @@ def buildXY(temp, keeplist=[], catlist=[], contlist=[], catencodtype = 'OneHot')
         for c in catlist:
             
             # One Hot Encoding
-            epath = dpath + r'\\components\\Encoder' + f'_{c}.pkl'
+            epath = COMPONENTS_DIR / f'Encoder_{c}.pkl'
             enc = pickle.load(open(epath, 'rb'))
             
             # Unfortunately, these encoders were built with sklearn 1.2.2, 
@@ -396,7 +399,7 @@ def buildXY(temp, keeplist=[], catlist=[], contlist=[], catencodtype = 'OneHot')
             for y in ['success_730', 'success_365', 'success_180',
                       'success_noexit_730', 'success_noexit_365',
                       'success_noexit_180']:
-                epath = dpath + r'\\components\\WOEEncoder' + f'_{y}_{c}.pkl'
+                epath = COMPONENTS_DIR / f'WOEEncoder_{y}_{c}.pkl'
                 woe = pickle.load(open(epath, 'rb'))
                 look = woe.transform(temp[[c]])
                 look = look.rename(columns={f'{c}': f'woe_{y}_{c}'})
@@ -438,11 +441,11 @@ householddf = buildXY(temp=traindf, keeplist=keepvars,
                       contlist=household_cont_vars)
 
 # Output
-fullpath = dpath + r'\\train_allfeatures_'+ f'_{today}.csv'
-fulltestpath = dpath + r'\\test_allfeatures_'+ f'_{today}.csv'
+fullpath = dpath / f'train_allfeatures__{today}.csv'
+fulltestpath = dpath / f'test_allfeatures__{today}.csv'
 
-hohpath = dpath + r'\\train_hohfeatures_'+ f'_{today}.csv'
-householdpath = dpath + r'\\train_householdfeatures_'+ f'_{today}.csv'
+hohpath = dpath / f'train_hohfeatures__{today}.csv'
+householdpath = dpath / f'train_householdfeatures__{today}.csv'
 
 fulldf.to_csv(fullpath)
 fulltestdf.to_csv(fulltestpath)

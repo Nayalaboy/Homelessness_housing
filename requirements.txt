@@ -1,0 +1,16 @@
+# Core data / ML stack (Build/ and Analysis/)
+pandas
+numpy
+scikit-learn
+category_encoders
+scipy
+matplotlib
+
+# Database access for the HMIS SQL pulls (Build/BuildFeatures_*.py)
+pyodbc
+
+# Optimization notebooks (Optimization/*.ipynb) — CBC solver ships with PuLP
+pulp
+
+# For running the notebooks
+jupyter

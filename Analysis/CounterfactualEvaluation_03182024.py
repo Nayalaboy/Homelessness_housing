@@ -15,6 +15,7 @@ sys.path.append('../')
 import scipy.sparse.linalg
 from Build.Dictionaries import X_hoh_WOE, X_house_WOE, X_all_WOE, X_all_OHE
 from Build.Dictionaries import ywoexmatch
+from Build.config import DATA_DIR, MODELS_DIR, COMPONENTS_DIR, COUNTERFACTUALS_DIR
 import pickle
 import pandas as pd
 from sklearn.model_selection import GridSearchCV
@@ -32,12 +33,12 @@ from sklearn.preprocessing import StandardScaler
 
 
 
-dpath = r'..\..\..\Data'
-mpath = r'..\..\..\Output\models'
+dpath = DATA_DIR
+mpath = MODELS_DIR
 
-alldf = pd.read_csv(dpath + r'\train_allfeatures__2024-03-18.csv')
+alldf = pd.read_csv(dpath / 'train_allfeatures__2024-03-18.csv')
 # Used for remapping the encoders
-traindf = pd.read_pickle(dpath + r'\traindf_2024-03-07.pkl')
+traindf = pd.read_pickle(dpath / 'traindf_2024-03-07.pkl')
 
 ##############################################################################
 # Helper Functions
@@ -94,7 +95,7 @@ def remapencoder(xvar, yvar, origdf, currdf):
     encode it and map the encoded values back to the original ones. We then
     use this mapping to reverse the mapping for our current dataset.
     '''
-    epath = dpath + r'\\components\\WOEEncoder'+ f'_{yvar}_{xvar}.pkl'
+    epath = COMPONENTS_DIR / f'WOEEncoder_{yvar}_{xvar}.pkl'
     enc = pickle.load(open(epath, "rb"))
     origdf[xvar+'_tranform'] = enc.transform(origdf[xvar])
     mapdf = origdf[[xvar+'_tranform', xvar]].drop_duplicates()
@@ -372,7 +373,7 @@ ax.set_xlabel('Change in Probability', fontsize=20)
 plt.xticks(fontsize=14)
 plt.tick_params(left=False, labelleft=False)
 
-plt.savefig(r'..\..\..\Output\figures\Counterfactuals\TX_CATE_04202024.png')
+plt.savefig(COUNTERFACTUALS_DIR / 'TX_CATE_04202024.png')
 plt.close()
 
 # Elastic Net Plot
@@ -466,7 +467,7 @@ for i in tups:
     kdeprotectedclass(var=i[0], pdiff=i[3],  tempdf=tempx,
                       rmcats=i[4], axval=1, title='Elastic Net')
     plt.suptitle(f'{i[0]} {i[1]}')
-    plt.savefig(r'..\..\..\Output\figures\Counterfactuals\\' + f'counter_{i[0]}_{i[1]}.png')
+    plt.savefig(COUNTERFACTUALS_DIR / f'counter_{i[0]}_{i[1]}.png')
     plt.close()
 
 
@@ -494,7 +495,7 @@ ax.spines['left'].set_visible(False)
 ax.set_xlabel('Change in Probability', fontsize=20)
 plt.xticks(fontsize=14)
 plt.tick_params(left=False, labelleft=False)
-plt.savefig(r'..\..\..\Output\figures\Counterfactuals\Gender_CATE_04202024.png')
+plt.savefig(COUNTERFACTUALS_DIR / 'Gender_CATE_04202024.png')
 plt.close()
 ###############################################################################
 # Get TX effects 

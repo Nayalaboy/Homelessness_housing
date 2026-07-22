@@ -18,16 +18,19 @@ import numpy as np
 from datetime import date
 import pickle
 from Dictionaries import remap
+from config import DATA_DIR, COMPONENTS_DIR
 
-# Load data
-iodf = pd.read_pickle(r'..\..\..\Data\InterventionOutcomes_2024-04-18.pkl')
-hsdf = pd.read_pickle(r'..\..\..\Data\HouseholdFeatures_2024-04-18.pkl')
-lhhxdf = pd.read_pickle(r'..\..\..\Data\HouseholdLiteralHomelessnessHistory_2024-04-18.pkl') 
-hohdf = pd.read_pickle(r'..\..\..\Data\HeadofHousholdFeatures_2024-04-18.pkl')
+# Load data. Override the build date of the intermediate files (produced by
+# BuildFeatures / BuildInterventionOutcomes) via the SOURCE_DATE variable.
+SOURCE_DATE = '2024-04-18'
+iodf = pd.read_pickle(DATA_DIR / f'InterventionOutcomes_{SOURCE_DATE}.pkl')
+hsdf = pd.read_pickle(DATA_DIR / f'HouseholdFeatures_{SOURCE_DATE}.pkl')
+lhhxdf = pd.read_pickle(DATA_DIR / f'HouseholdLiteralHomelessnessHistory_{SOURCE_DATE}.pkl')
+hohdf = pd.read_pickle(DATA_DIR / f'HeadofHousholdFeatures_{SOURCE_DATE}.pkl')
 
 # Globals
 today = date.today()
-dpath = r'..\..\..\Data'
+dpath = DATA_DIR
 ##############################################################################
 # Merge
 
@@ -369,15 +372,15 @@ testdf = testdf.reset_index(drop =True)
 # Save list results
 ###############################################################################
 
-with open(dpath + r'\\components\\trainlistpid'+ f'_{today}.pkl', 'wb') as f:
-    pickle.dump(trainlist, f)    
+with open(COMPONENTS_DIR / f'trainlistpid_{today}.pkl', 'wb') as f:
+    pickle.dump(trainlist, f)
 
-with open(dpath + r'\\components\\testlistpid'+ f'_{today}.pkl', 'wb') as f:
-    pickle.dump(testlist, f)    
+with open(COMPONENTS_DIR / f'testlistpid_{today}.pkl', 'wb') as f:
+    pickle.dump(testlist, f)
 
 # Output Results
-traindf.to_pickle(dpath + r'\\traindf' + f'_{today}.pkl')
-traindf.to_csv(dpath + r'\\traindf' + f'_{today}.csv')
+traindf.to_pickle(dpath / f'traindf_{today}.pkl')
+traindf.to_csv(dpath / f'traindf_{today}.csv')
 
-testdf.to_pickle(dpath + r'\\testdf' + f'_{today}.pkl')
+testdf.to_pickle(dpath / f'testdf_{today}.pkl')
 

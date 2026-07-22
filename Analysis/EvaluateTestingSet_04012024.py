@@ -15,6 +15,7 @@ import sys
 sys.path.append('../')
 from Build.Dictionaries import X_hoh_WOE, X_house_WOE, X_all_WOE, X_all_OHE
 from Build.Dictionaries import ywoexmatch
+from Build.config import DATA_DIR, MODELS_DIR
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import confusion_matrix, roc_auc_score, precision_score, recall_score
@@ -27,11 +28,11 @@ from sklearn.preprocessing import StandardScaler
 import random
 from datetime import timedelta
 
-dpath = r'..\..\..\Data'
-mpath = r'..\..\..\Output\models'
+dpath = DATA_DIR
+mpath = MODELS_DIR
 
-testdf = pd.read_csv(r'..\..\..\Data\test_allfeatures__2024-04-01.csv')
-traindf = pd.read_csv(r'..\..\..\Data\train_allfeatures__2024-03-18.csv')
+testdf = pd.read_csv(DATA_DIR / 'test_allfeatures__2024-04-01.csv')
+traindf = pd.read_csv(DATA_DIR / 'train_allfeatures__2024-03-18.csv')
 
 
 clfrf = RandomForestClassifier(max_depth=None,
@@ -133,8 +134,8 @@ diffps = diffps.reset_index(drop=True)
 # Build Optimization Dataset
 
 # Stack training and testing
-traindfnotransform = pd.read_pickle(dpath + r'\traindf_2024-03-07.pkl')
-testdfnotransform = pd.read_pickle(dpath + r'\testdf_2024-03-07.pkl')
+traindfnotransform = pd.read_pickle(dpath / 'traindf_2024-03-07.pkl')
+testdfnotransform = pd.read_pickle(dpath / 'testdf_2024-03-07.pkl')
 piddf = pd.concat([traindf[['PersonalID']], traindfnotransform[['start_date', 'end_date', 'HoH_GenderName']]], axis=1)
 piddftest = pd.concat([testdf[['PersonalID']], testdfnotransform[['start_date', 'end_date', 'HoH_GenderName']]], axis=1)
 piddf = pd.concat([piddf, piddftest])
@@ -170,6 +171,6 @@ outdf = outdf.loc[outdf['subpopulation'] != 'Other_Missing', ].copy()
 outdf['subpopulation'] = (outdf['subpopulation'] == 'Woman (Girl, if child)').astype(int)
 outdf = outdf[['ID', 'intervention_eligibility_start', 'intervention_eligibility_end',
                'subpopulation', 'P_RRH', 'P_TSH', 'P_PSH', 'P_NOTX']]
-outdf.to_csv(r'..\..\..\Data\OptimizationData_04012024.csv')
+outdf.to_csv(DATA_DIR / 'OptimizationData_04012024.csv')
 
 

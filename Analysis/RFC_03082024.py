@@ -21,6 +21,7 @@ import sys
 sys.path.append('../')
 from Build.Dictionaries import X_hoh_WOE, X_house_WOE, X_all_WOE, X_notCat_WOE
 from Build.Dictionaries import ywoexmatch
+from Build.config import DATA_DIR, MODELS_DIR
 from sklearn.model_selection import GridSearchCV
 import pandas as pd
 import pickle
@@ -32,7 +33,7 @@ from sklearn.feature_selection import SelectFromModel
 from sklearn.ensemble import RandomForestClassifier
 
 today = date.today()
-mpath = r'..\..\..\Output\models'
+mpath = MODELS_DIR
 
 
 def rfccv(df, yvar, X_subset, Xname, vtransform):
@@ -126,14 +127,14 @@ def rfccv(df, yvar, X_subset, Xname, vtransform):
                    'Variable Transform': vtransform,
                    'Model': model_grid}
     
-    bestmodelpath = mpath + f'\\RFC_{yvar}_{Xname}_Transform{vtransform}.pkl'
+    bestmodelpath = mpath / f'RFC_{yvar}_{Xname}_Transform{vtransform}.pkl'
     with open(bestmodelpath, 'wb') as f:
         pickle.dump(performdict, f)
 
 ###############################################################
 # Run Analysis
 
-alldf = pd.read_csv(r'..\..\..\Data\train_allfeatures__2024-03-18.csv')
+alldf = pd.read_csv(DATA_DIR / 'train_allfeatures__2024-03-18.csv')
 counter = 0
 # Different y outcomes
 for y in ['success_180', 'success_365', 'success_730',

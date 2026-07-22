@@ -18,14 +18,14 @@ HoH = Head of Household
 
 
 from InterventionOutcomes_SQL_02122024 import sql_ceevents, sql_ceinterventions, sql_literalhomeless, sql_ceeventsallpersons
+from config import DATA_DIR, get_connection
 
 import pandas as pd
-import pyodbc
 from datetime import date, datetime
 import datetime as dtother
 import numpy as np
 
-cnxn = {'XXX'}
+cnxn = get_connection()
 
 today = date.today()
 
@@ -446,14 +446,13 @@ ceintlhsuc = defsuccess(temp=ceintlh.copy(), daystosuccess = [365*2, 365, 180])
 
 # Output
 today = date.today()
-path = r'..\..\..\Data\InterventionOutcomes'
-path +=  f'_{today}.pkl'
+path = DATA_DIR / f'InterventionOutcomes_{today}.pkl'
 ceintlhsuc.to_pickle(path)
 
 ###############################################################################
 # Temporary. Put here to facilitate comparison to raw data and documented steps.
 
-path = r'..\..\..\Data\CEInterventionSample_Outcomes.csv'
+path = DATA_DIR / 'CEInterventionSample_Outcomes.csv'
 ceint.to_csv(path)
 
 #ceintlhsuc.loc[ceintlhsuc['start_date'].dt.year >= 2017, 'success'].value_counts()
